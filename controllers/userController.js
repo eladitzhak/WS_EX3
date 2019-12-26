@@ -34,17 +34,17 @@ router.get('/getAllUsers', function (req, res, next) {
 	});
 });
 
-router.get('/:username', function (req, res, next) {
+router.get('/:userName', function (req, res, next) {
 	mongoose
 		.connect(url, options)
 		.then(async () => {
 			// Query goes here
-			const { username = null } = req.params;
-			console.info(`username is ${username}`);
-			const result = await User.findOne({ userName: username });
+			const { userName = null } = req.params;
+			console.info(`userName is ${userName}`);
+			const result = await User.findOne({ userName: userName });
 
 			if (result) res.json(result);
-			else res.status(404).send(`user ${username} not found!`);
+			else res.status(404).send(`user ${userName} not found!`);
 		})
 		.catch(err => {
 			console.error('some error occurred', err);
@@ -61,24 +61,28 @@ router.post('/addUser', function (req, res, next) {
 				id = null,
 				firstName = null,
 				lastName = null,
-				username = null,
+				userName = null,
 				phone = null,
 				email = null
 			} = req.body;
-			const newUser = new User({ id, firstName, lastName, username, phone, email });
-			console.log(newUser);
-			const resultusernameExists = await User.findOne({ username });
-			if (resultusernameExists) {
-				const msg = `username ${username} already exist!`;
-				res.status(500).send(msg);
+			const newUser = new User({ id, firstName, lastName, userName, phone, email });
+			const resultuserNameExists = await User.findOne({ userName: userName });
+			if (resultuserNameExists) {
+				const msg = `userName ${userName} already exist!`;
+				console.log(resultuserNameExists);
+				return res.status(500).send(msg);
 			}
-			const result = await newUser.save();
-			if (result) res.status(200).send(`new user created succefully ${username}`);
-			else res.status(500).send('error in save:' + result);
+			try {
+				const result = await newUser.save();
+				if (result) res.status(200).send(`new user created succefully ${userName}`);
+				else res.status(500).send('error in save:' + result);
+			} catch (err) {
+				return res.status(500).send('error: ' + err);
+			}
 		})
 		.catch(err => {
 			console.error('some error occurred', err);
-			res.status(500).send(err.message);
+			return res.status(500).send('error occured', err.message);
 		});
 });
 
@@ -86,18 +90,18 @@ router.put('/editUser', function (req, res) {
 	console.log('editUser called!');
 	mongoose.connect(url, options)
 		.then(async () => {
-			const { username = null } = req.body;
-			const result = await User.findOne({ username });
+			const { userName = null } = req.body;
+			const result = await User.findOne({ userName });
 			if (!result) {
 				return res.status(404).send('user not found!');
 			}
 			const { firstName, lastName, phone, email } = result;
 			const receivedParams = req.body;
-			User.updateOne({ username }, { firstName, lastName, phone, email, ...receivedParams }, (err, result) => {
+			User.updateOne({ userName }, { firstName, lastName, phone, email, ...receivedParams }, (err, result) => {
 				if (err) {
 					res.status(500).send('error in update:' + err);
 				}
-				res.status(200).send(`user updated succefully ${username}`);
+				res.status(200).send(`user updated succefully ${userName}`);
 			});
 		}).catch((err) => {
 			console.error('error occured!', err);
@@ -110,19 +114,19 @@ router.delete('/removeUser', function (req, res, next) {
 	mongoose
 		.connect(url, options)
 		.then(async () => {
-			const usernameProvided = req.body.username;
-			console.log('username proveded', usernameProvided);
-			if (!usernameProvided || !(typeof usernameProvided === 'string')) {
-				res.status(500).end('missing correct username value!');
+			const userNameProvided = req.body.userName;
+			console.log('userName proveded', userNameProvided);
+			if (!userNameProvided || !(typeof userNameProvided === 'string')) {
+				res.status(500).end('missing correct userName value!');
 			} else {
-				const result = await User.findOne({ username: usernameProvided });
+				const result = await User.findOne({ userName: userNameProvided });
 				console.error(result);
 				if (result) {
 					console.log('found user!');
-					const removeResult = await User.deleteOne({ username: usernameProvided });
+					const removeResult = await User.deleteOne({ userName: userNameProvided });
 					console.log(removeResult);
 					if (removeResult) {
-						res.status(200).send(`user ${usernameProvided} removed succeffuly!`);
+						res.status(200).send(`user ${userNameProvided} removed succeffuly!`);
 					} else {
 						res.status(400).send('cannot remove user! not removed any user!');
 					}
