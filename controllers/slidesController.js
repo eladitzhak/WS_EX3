@@ -53,33 +53,14 @@ router.post('/addSlides', function (req, res, next) {
 			if (!validExtentionsResult) {
 				return res.status(500).send(`Cannot upload slides, please use files extention: ${slidesExtentions}`);
 			}
-			console.log(`slidearr is ${slidearr} and type is ${typeof (slidearr)} len is ${slidearr.length}`);
-			console.info(`userName is ${userName}`);
-			console.info(`slides is ${slides}`);
-			console.info(`typeof slides ${typeof (slides)}`);
 			const result = await Slides.findOne({ userName });
-			console.log('******result:',result);
-			const slidesQty = slidearr.length;
-			console.log(slidesQty);
 			if (result) {
-				console.log('updating....');
 				try {
-					// const updateResult = Slides.updateOne({ userName: userName }, { $push: { slides: { $each: ["ssss","ssssssssss"] } } });
-					//  db.slides.updateOne({userName:"eladit"},{$push:{slides: {$each: slides}}})
-					// res.sendStatus(200).send(updateResult);
-					// User.updateOne({ userName: userName }, { $inc: { slidesQty: slidesQty } }).then(console.log("updated user slides QTY:",slidesQty));
 					Slides.updateOne({ userName: userName }, { $push: { slides: { $each: slidearr } } }, function (err) {
 						if (err) {
 							return res.status(400).send('Error occured', err);
 						} else {
-							console.log('Successfully added');
-							console.log('updating user slides quantity');
-							const updateQtyResult = User.updateOne({ userName: userName }, { $inc: { slidesQty: slidesQty } }).then(console.log('updated user slides QTY', slidesQty));
-							if (updateQtyResult) {
-								return res.status(200).send(`slides ${slidearr} uploaded successfully`);
-							} else {
-								return res.status(400).send('Error occured cannot update user slides Quantity');
-							}
+							return res.status(200).send(`slides ${slidearr} uploaded successfully`);
 						}
 					});
 				} catch (err) {
@@ -117,7 +98,7 @@ router.put('/removeSlides', function (req, res, next) {
 					const { nModified } = await Slides.updateOne({ userName: userName }, { $pull: { slides: { $in: slidearr } } });
 					console.log(` Modified: ${nModified}  `);
 					if (nModified > 0) {
-					// db.slides.update(    { userName: "good_guy" },    { $pull: { slides: "4.pptx" } } ) 
+						// db.slides.update(    { userName: "good_guy" },    { $pull: { slides: "4.pptx" } } ) 
 						console.log('Successfully removed ', nModified);
 						console.log('updating user slides quantity');
 						const updateQtyResult = await User.updateOne({ userName: userName }, { $inc: { slidesQty: -nModified } }).then(console.log('updated reduced user slides QTY', -slidesQty));
@@ -158,11 +139,10 @@ router.get('/number/:userName', function (req, res, next) {
 		});
 });
 // eslint-disable-next-line require-jsdoc
-function checkValidExtentions (slidearr) {
+function checkValidExtentions(slidearr) {
 	// eslint-disable-next-line guard-for-in
 	for (let key in slidearr) {
 		const extention = String(slidearr[key].split('.')[1]);
-		console.log(`extention is: ${extention}`);
 		if (!slidesExtentions.includes(extention)) {
 			return false;
 		}
