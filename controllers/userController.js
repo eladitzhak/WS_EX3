@@ -33,10 +33,10 @@ router.get('/getAllUsers', function (req, res, next) {
 });
 
 router.get('/:userName', function (req, res, next) {
+	console.log('\x1b[33m%s\x1b[0m', 'user/$username called');
 	mongoose
 		.connect(url, options)
 		.then(async () => {
-			// Query goes here
 			const { userName = null } = req.params;
 			const result = await User.findOne({ userName: userName });
 			if (result) res.json(result);
