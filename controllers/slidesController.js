@@ -38,7 +38,7 @@ router.get('/:userName', function (req, res, next) {
 		})
 		.catch((err) => {
 			console.error('some error occurred', err);
-			res.status(500).send(err.message);
+			return res.status(400).send(err.message);
 		});
 });
 router.post('/addSlides', function (req, res, next) {
@@ -123,9 +123,9 @@ router.get('/number/:userName', function (req, res, next) {
 			const { userName = null } = req.params;
 			const result = await Slides.findOne({ userName });
 			if (result) {
-				return res.status(200).send(result.slides.length);
+				return res.send(`slides quantity is: ${result.slides.length}`);
 			} else {
-				return res.status(500).send('error');
+				return res.status(500).send(`error cannot find user ${userName} `);
 			}
 		});
 });
