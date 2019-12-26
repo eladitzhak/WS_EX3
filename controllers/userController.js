@@ -25,11 +25,9 @@ router.get('/getAllUsers', function (req, res, next) {
 	console.log('\x1b[33m%s\x1b[0m', 'getAllUsers called');
 	User.find({}, (err, result) => {
 		if (err) {
-			console.error('*****error!******', err);
+			return res.status(404).send('error occured: ', err);
 		}
-		console.log('userData');
-		console.log('\x1b[33m%s\x1b[0m', 'user in controller'); // yello
-		console.log(result);
+		console.log('\x1b[33m%s\x1b[0m', 'user in controller');
 		res.json(result);
 	});
 });
@@ -40,13 +38,11 @@ router.get('/:userName', function (req, res, next) {
 		.then(async () => {
 			// Query goes here
 			const { userName = null } = req.params;
-			console.info(`userName is ${userName}`);
 			const result = await User.findOne({ userName: userName });
-
 			if (result) res.json(result);
-			else res.status(404).send(`user ${userName} not found!`);
+			else return res.status(404).send(`user ${userName} not found!`);
 		})
-		.catch(err => {
+		.catch((err) => {
 			console.error('some error occurred', err);
 			res.status(500).send(err.message);
 		});

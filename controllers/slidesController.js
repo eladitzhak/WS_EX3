@@ -100,13 +100,7 @@ router.put('/removeSlides', function (req, res, next) {
 					if (nModified > 0) {
 						// db.slides.update(    { userName: "good_guy" },    { $pull: { slides: "4.pptx" } } ) 
 						console.log('Successfully removed ', nModified);
-						console.log('updating user slides quantity');
-						const updateQtyResult = await User.updateOne({ userName: userName }, { $inc: { slidesQty: -nModified } }).then(console.log('updated reduced user slides QTY', -slidesQty));
-						if (updateQtyResult) {
-							return res.status(200).send(`found ${nModified} slides and removed successfully`);
-						} else {
-							return res.status(400).send('Error occured cannot update user slides Quantity');
-						}
+						return res.status(200).send(`found ${nModified} slides and removed successfully`);
 					} else {
 						return res.status(400).send(`no slides found to remove! slides ${slidearr} cannot be found!`);
 					}
