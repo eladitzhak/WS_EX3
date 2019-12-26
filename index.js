@@ -11,7 +11,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/slides', slidesCtrl);
 app.use('/user', userctrl);
 
-app.get('/', (req, res) => {
+app.use('/', (req, res) => {
 	res.status(200);
 	res.send('missing path');
 });
