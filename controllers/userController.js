@@ -126,12 +126,12 @@ router.delete('/removeUser', function (req, res, next) {
 					const removeResult = await User.deleteOne({ userName: userNameProvided });
 					console.log(removeResult);
 					if (removeResult) {
-						res.status(200).send(`user ${userNameProvided} removed succeffuly!`);
+						res.status(200).send(`user ${userNameProvided} removed successfully!`);
 					} else {
-						res.status(400).send('cannot remove user! not removed any user!');
+						return res.status(400).send('cannot remove user! not removed any user!');
 					}
 				} else {
-					res.status(404).send('cannot find user! not removed any user!');
+					return res.status(404).send('cannot find user! not removed any user!');
 				}
 			}
 		})
