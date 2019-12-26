@@ -1,5 +1,4 @@
 const express = require('express');
-const logger = require('morgan');
 const userctrl = require('./controllers/userController.js');
 const slidesCtrl = require('./controllers/slidesController.js');
 require('./db_connection_promise_based');
