@@ -23,18 +23,18 @@ router.use(function (req, res, next) {
 	next();
 });
 
-router.get('/:username', function (req, res, next) {
+router.get('/:userName', function (req, res, next) {
 	console.log('\x1b[33m%s\x1b[0m', 'getUserSlides called');
 
 	mongoose
 		.connect(url, options)
 		.then(async () => {
-			const { username = null } = req.params;
-			console.info(`username is ${username}`);
-			const result = await Slides.findOne({ username });
+			const { userName = null } = req.params;
+			console.info(`userName is ${userName}`);
+			const result = await Slides.findOne({ userName });
 			if (result) {
 				res.json(result.slides);
-			} else res.status(404).send(`user ${username} not found!`);
+			} else res.status(404).send(`user ${userName} not found!`);
 		})
 		.catch((err) => {
 			console.error('some error occurred', err);
@@ -46,7 +46,7 @@ router.post('/addSlides', function (req, res, next) {
 	mongoose
 		.connect(url, options)
 		.then(async () => {
-			const { username = null } = req.body;
+			const { userName = null } = req.body;
 			const { slides = null } = req.body;
 			const slidearr = slides.split(',');
 			const validExtentionsResult = checkValidExtentions(slidearr);
@@ -54,26 +54,27 @@ router.post('/addSlides', function (req, res, next) {
 				return res.status(500).send(`Cannot upload slides, please use files extention: ${slidesExtentions}`);
 			}
 			console.log(`slidearr is ${slidearr} and type is ${typeof (slidearr)} len is ${slidearr.length}`);
-			console.info(`username is ${username}`);
+			console.info(`userName is ${userName}`);
 			console.info(`slides is ${slides}`);
 			console.info(`typeof slides ${typeof (slides)}`);
-			const result = await Slides.findOne({ username });
+			const result = await Slides.findOne({ userName });
+			console.log('******result:',result);
 			const slidesQty = slidearr.length;
 			console.log(slidesQty);
 			if (result) {
 				console.log('updating....');
 				try {
-					// const updateResult = Slides.updateOne({ username: username }, { $push: { slides: { $each: ["ssss","ssssssssss"] } } });
-					//  db.slides.updateOne({username:"eladit"},{$push:{slides: {$each: slides}}})
+					// const updateResult = Slides.updateOne({ userName: userName }, { $push: { slides: { $each: ["ssss","ssssssssss"] } } });
+					//  db.slides.updateOne({userName:"eladit"},{$push:{slides: {$each: slides}}})
 					// res.sendStatus(200).send(updateResult);
-					// User.updateOne({ username: username }, { $inc: { slidesQty: slidesQty } }).then(console.log("updated user slides QTY:",slidesQty));
-					Slides.updateOne({ username: username }, { $push: { slides: { $each: slidearr } } }, function (err) {
+					// User.updateOne({ userName: userName }, { $inc: { slidesQty: slidesQty } }).then(console.log("updated user slides QTY:",slidesQty));
+					Slides.updateOne({ userName: userName }, { $push: { slides: { $each: slidearr } } }, function (err) {
 						if (err) {
 							return res.status(400).send('Error occured', err);
 						} else {
 							console.log('Successfully added');
 							console.log('updating user slides quantity');
-							const updateQtyResult = User.updateOne({ username: username }, { $inc: { slidesQty: slidesQty } }).then(console.log('updated user slides QTY', slidesQty));
+							const updateQtyResult = User.updateOne({ userName: userName }, { $inc: { slidesQty: slidesQty } }).then(console.log('updated user slides QTY', slidesQty));
 							if (updateQtyResult) {
 								return res.status(200).send(`slides ${slidearr} uploaded successfully`);
 							} else {
@@ -86,7 +87,7 @@ router.post('/addSlides', function (req, res, next) {
 					res.send(500).send('***ERROR WHILE UPDATING:***', err.message);
 				}
 			} else {
-				return res.status(404).send(`user ${username} not found!`);
+				return res.status(404).send(`user ${userName} not found!`);
 			}
 		})
 		.catch((err) => {
@@ -100,7 +101,7 @@ router.put('/removeSlides', function (req, res, next) {
 	mongoose
 		.connect(url, options)
 		.then(async () => {
-			const { username = null } = req.body;
+			const { userName = null } = req.body;
 			const { slides = null } = req.body;
 			const slidearr = slides.split(',');
 			const validExtentionsResult = checkValidExtentions(slidearr);
@@ -108,18 +109,18 @@ router.put('/removeSlides', function (req, res, next) {
 				return res.status(500).send(`Cannot remove slides,one or more files has wrong extension. please use files extentions: ${slidesExtentions}`);
 			}
 			console.log(`slidearr is ${slidearr} and type is ${typeof (slidearr)} len is ${slidearr.length}`);
-			console.info(`username is ${username}`);
-			const result = await Slides.findOne({ username });
+			console.info(`userName is ${userName}`);
+			const result = await Slides.findOne({ userName });
 			if (result) {
 				console.log('removing....');
 				try {
-					const { nModified } = await Slides.updateOne({ username: username }, { $pull: { slides: { $in: slidearr } } });
+					const { nModified } = await Slides.updateOne({ userName: userName }, { $pull: { slides: { $in: slidearr } } });
 					console.log(` Modified: ${nModified}  `);
 					if (nModified > 0) {
-					// db.slides.update(    { username: "good_guy" },    { $pull: { slides: "4.pptx" } } ) 
+					// db.slides.update(    { userName: "good_guy" },    { $pull: { slides: "4.pptx" } } ) 
 						console.log('Successfully removed ', nModified);
 						console.log('updating user slides quantity');
-						const updateQtyResult = await User.updateOne({ username: username }, { $inc: { slidesQty: -nModified } }).then(console.log('updated reduced user slides QTY', -slidesQty));
+						const updateQtyResult = await User.updateOne({ userName: userName }, { $inc: { slidesQty: -nModified } }).then(console.log('updated reduced user slides QTY', -slidesQty));
 						if (updateQtyResult) {
 							return res.status(200).send(`found ${nModified} slides and removed successfully`);
 						} else {
@@ -133,7 +134,7 @@ router.put('/removeSlides', function (req, res, next) {
 					res.send(500).send('***ERROR WHILE UPDATING:***', err.message);
 				}
 			} else {
-				return res.status(404).send(`user ${username} not found!`);
+				return res.status(404).send(`user ${userName} not found!`);
 			}
 		})
 		.catch((err) => {
@@ -142,13 +143,13 @@ router.put('/removeSlides', function (req, res, next) {
 		});
 });
 
-router.get('/number/:username', function (req, res, next) {
+router.get('/number/:userName', function (req, res, next) {
 	console.log('\x1b[33m%s\x1b[0m', 'slides/number called');
 	mongoose
 		.connect(url, options)
 		.then(async () => {
-			const { username = null } = req.params;
-			const result = await Slides.findOne({ username });
+			const { userName = null } = req.params;
+			const result = await Slides.findOne({ userName });
 			if (result) {
 				return res.status(200).send(result.slides.length);
 			} else {
