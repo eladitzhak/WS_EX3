@@ -33,24 +33,7 @@ router.get('/getAllUsers', function (req, res, next) {
 		res.json(result);
 	});
 });
-// router.get('/:id', function (req, res, next) {
-// 	mongoose
-// 		.connect(url, options)
-// 		.then(async () => {
-// 			// Query goes here
-// 			const { id = null } = req.params;
-// 			console.log(`req parmsa: ${req.params.id}`);
-// 			console.info(`id is ${id}`);
-// 			const result = await User.findOne({ id });
 
-// 			if (result) res.json(result);
-// 			else res.status(404).send(`user ${id} not found!`);
-// 		})
-// 		.catch(err => {
-// 			console.error('some error occurred', err);
-// 			res.status(500).send(err.message);
-// 		});
-// });
 router.get('/:username', function (req, res, next) {
 	mongoose
 		.connect(url, options)
@@ -58,7 +41,7 @@ router.get('/:username', function (req, res, next) {
 			// Query goes here
 			const { username = null } = req.params;
 			console.info(`username is ${username}`);
-			const result = await User.findOne({ username });
+			const result = await User.findOne({ userName: username });
 
 			if (result) res.json(result);
 			else res.status(404).send(`user ${username} not found!`);
